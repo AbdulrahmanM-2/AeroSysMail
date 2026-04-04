@@ -1,1 +1,21 @@
-
+# AeroSysMail Postfix main.cf
+myhostname = mail.aerosys.aero
+mydomain   = aerosys.aero
+myorigin   = $mydomain
+inet_interfaces = all
+inet_protocols  = ipv4
+mydestination   = $myhostname, $mydomain, localhost
+mynetworks      = 127.0.0.0/8 172.0.0.0/8 10.0.0.0/8
+relayhost       =
+home_mailbox    = Maildir/
+mailbox_size_limit  = 0
+message_size_limit  = 26214400
+smtpd_tls_cert_file = /etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file  = /etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_use_tls       = yes
+smtpd_tls_security_level = may
+smtp_tls_security_level  = may
+smtpd_helo_required = yes
+smtpd_recipient_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+smtpd_relay_restrictions     = permit_mynetworks, permit_sasl_authenticated, defer_unauth_destination
+maillog_file = /dev/stdout
