@@ -15,7 +15,7 @@
     "cloudflare": "^5.2.0",
     "jose": "^5.2.0",
     "namecheap-api": "^1.0.5",
-    "next": "14.2.21",
+    "next": "15.5.15",
     "nodemailer": "^8.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
