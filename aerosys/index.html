@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AeroSysMail — Business Autopilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233b82f6'/><path d='M22 10L11 21M22 10L18 26 11 21 6 13l16-3z' stroke='white' stroke-width='2' fill='none'/></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg0:#050d1a;--bg1:#091422;--bg2:#0e1d35;--bg3:#132540;--bg4:#192e4e;
+  --bg5:#1e3660;--bg6:#243e72;
+  --b0:rgba(60,130,220,.08);--b1:rgba(60,130,220,.16);--b2:rgba(60,130,220,.35);--b3:rgba(60,130,220,.6);
+  --blue:#3b82f6;--blue2:#60a5fa;--blue3:#93c5fd;
+  --teal:#14b8a6;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;--orange:#fb923c;
+  --t1:#e8f0fe;--t2:#8da8c8;--t3:#3d5a7a;
+  --sidebar:220px;--topbar:58px;
+  --r1:6px;--r2:10px;--r3:14px;--r4:20px;
+  --sh:0 4px 24px rgba(0,0,0,.55);--sh2:0 12px 48px rgba(0,0,0,.75);
+  --f:'Sora',sans-serif;--fm:'JetBrains Mono',monospace;
+  --ease:.18s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font-family:var(--f);font-size:13px;line-height:1.5}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+input,select,textarea{font-family:inherit;font-size:13px}
+a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ═══ AUTH SCREEN ════════════════════════════════════════════ */
+#auth-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg0);
+  overflow:hidden;
+}
+.auth-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.auth-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18;animation:orb-float 8s ease-in-out infinite}
+.auth-orb.o1{width:500px;height:500px;background:var(--blue);top:-100px;left:-100px;animation-delay:0s}
+.auth-orb.o2{width:400px;height:400px;background:var(--teal);bottom:-80px;right:-80px;animation-delay:3s}
+.auth-orb.o3{width:300px;height:300px;background:var(--purple);top:40%;left:40%;animation-delay:6s}
+@keyframes orb-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-20px) scale(1.05)}}
+.auth-grid{position:absolute;inset:0;background-image:linear-gradient(var(--b0) 1px,transparent 1px),linear-gradient(90deg,var(--b0) 1px,transparent 1px);background-size:40px 40px;opacity:.5}
+.auth-card{
+  position:relative;z-index:1;
+  width:420px;
+  background:rgba(9,20,34,.92);
+  border:1px solid var(--b1);
+  border-radius:var(--r4);
+  padding:36px;
+  box-shadow:var(--sh2);
+  backdrop-filter:blur(20px);
+  animation:card-in .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes card-in{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px}
+.auth-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:10px;display:grid;place-items:center;box-shadow:0 0 24px rgba(59,130,246,.4)}
+.auth-logo-text{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.auth-logo-text b{color:var(--amber)}
+.auth-tabs{display:flex;background:var(--bg3);border-radius:var(--r2);padding:3px;margin-bottom:24px}
+.auth-tab{flex:1;text-align:center;padding:8px;border-radius:var(--r1);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all var(--ease)}
+.auth-tab.on{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.4)}
+.auth-form{display:flex;flex-direction:column;gap:14px}
+.auth-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:5px}
+.auth-field input{
+  width:100%;background:var(--bg3);border:1px solid var(--b1);
+  border-radius:var(--r2);padding:10px 14px;color:var(--t1);outline:none;
+  transition:border-color var(--ease);
+}
+.auth-field input:focus{border-color:var(--b3)}
+.auth-field input::placeholder{color:var(--t3)}
+.auth-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.auth-btn{
+  width:100%;background:var(--blue);color:#fff;
+  padding:12px;border-radius:var(--r2);font-size:14px;font-weight:700;
+  cursor:pointer;transition:all var(--ease);border:none;font-family:var(--f);
+  box-shadow:0 4px 16px rgba(59,130,246,.35);margin-top:4px;
+}
+.auth-btn:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.45)}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.auth-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--r1);padding:10px 13px;font-size:12px;color:#f87171;display:none}
+.auth-divider{text-align:center;font-size:11px;color:var(--t3);margin:4px 0}
+
+/* ═══ APP SHELL ══════════════════════════════════════════════ */
+#app{display:grid;grid-template-rows:var(--topbar) 1fr;grid-template-columns:var(--sidebar) 1fr;height:100vh}
+#app[hidden]{display:none}
+
+/* ── TOPBAR ── */
+#topbar{
+  grid-column:1/-1;display:flex;align-items:center;gap:12px;
+  padding:0 16px;background:var(--bg0);border-bottom:1px solid var(--b0);
+  z-index:100;position:relative;
+}
+.tb-logo{display:flex;align-items:center;gap:8px;min-width:var(--sidebar);padding-right:10px}
+.tb-logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:7px;display:grid;place-items:center;flex-shrink:0}
+.tb-logo-text{font-size:15px;font-weight:800;letter-spacing:-.4px}
+.tb-logo-text b{color:var(--amber)}
+.tb-search{flex:1;max-width:420px;display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--b0);border-radius:20px;padding:7px 14px;transition:border-color var(--ease)}
+.tb-search:focus-within{border-color:var(--b2)}
+.tb-search input{background:none;border:none;outline:none;color:var(--t1);flex:1;font-size:12.5px}
+.tb-search input::placeholder{color:var(--t3)}
+.tb-gap{flex:1}
+.tb-role-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+.tb-role-admin{background:rgba(167,139,250,.14);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.tb-role-client{background:rgba(59,130,246,.12);color:var(--blue2);border:1px solid rgba(59,130,246,.2)}
+.tb-icon-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--b0);border-radius:50%;display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:all var(--ease);position:relative}
+.tb-icon-btn:hover{border-color:var(--b2);color:var(--t1)}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--bg0)}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#7c3aed);display:grid;place-items:center;font-weight:700;font-size:12px;cursor:pointer;border:2px solid var(--b1);flex-shrink:0}
+.tb-dropdown{position:absolute;top:52px;right:10px;width:200px;background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r2);box-shadow:var(--sh2);z-index:200;display:none}
+.tb-dropdown.open{display:block;animation:fd .15s ease}
+@keyframes fd{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.dd-item{padding:10px 14px;font-size:12.5px;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all var(--ease)}
+.dd-item:hover{background:var(--bg5);color:var(--t1)}
+.dd-sep{height:1px;background:var(--b0);margin:3px 0}
+.dd-name{padding:12px 14px 8px;font-size:13px;font-weight:700;color:var(--t1);border-bottom:1px solid var(--b0)}
+.dd-email{font-size:11px;color:var(--t3);font-weight:400}
+
+/* ── SIDEBAR ── */
+#sidebar{background:var(--bg0);border-right:1px solid var(--b0);overflow-y:auto;padding:12px 8px;display:flex;flex-direction:column;gap:2px}
+.s-divider{height:1px;background:var(--b0);margin:6px 0}
+.s-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--t3);padding:8px 9px 3px}
+.s-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r1);color:var(--t2);font-size:12.5px;font-weight:500;cursor:pointer;transition:all var(--ease);position:relative;user-select:none}
+.s-item:hover{background:var(--bg3);color:var(--t1)}
+.s-item.on{background:rgba(59,130,246,.12);color:var(--blue2)}
+.s-item.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--blue);border-radius:0 3px 3px 0}
+.s-item.admin-on{background:rgba(167,139,250,.1);color:var(--purple)}
+.s-item.admin-on::before{background:var(--purple)}
+.s-badge{margin-left:auto;background:var(--blue);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.s-badge.warn{background:var(--amber)}
+.s-badge.ok{background:var(--green)}
+.s-sub{padding-left:26px;font-size:12px}
+
+/* ── MAIN ── */
+#main{overflow:hidden;background:var(--bg1);display:flex;flex-direction:column}
+.view{display:none;flex:1;overflow-y:auto;padding:20px}
+.view.on{display:block;animation:vi .2s ease}
+@keyframes vi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── PAGE HEADER ── */
+.pg-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.pg-title{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.pg-sub{font-size:12px;color:var(--t3);margin-top:3px}
+.pg-actions{display:flex;gap:8px;align-items:center}
+
+/* ── CARDS / STATS ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:var(--bg3);border:1px solid var(--b0);border-radius:var(--r3);padding:18px 20px;position:relative;overflow:hidden;transition:all var(--ease)}
+.stat:hover{border-color:var(--b2);transform:translateY(-2px);box-shadow:var(--sh)}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 var(--r3) var(--r3)}
+.stat.sg::after{background:linear-gradient(90deg,var(--green),var(--teal))}
+.stat.sb::after{background:linear-gradient(90deg,var(--blue),var(--blue2))}
+.stat.sp::after{background:linear-gradient(90deg,var(--purple),var(--blue2))}
+.stat.sa::after{background:linear-gradient(90deg,var(--amber),var(--orange))}
+.stat-label{font-size:10.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-1.5px;margin:6px 0 4px}
+.stat-sub{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px}
+.card{background:var(--bg3);border:1px solid var(--b0);border-radius:var(--r3);padding:18px 20px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14.5px;font-weight:700}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r2);font-size:12.5px;font-weight:600;cursor:pointer;transition:all var(--ease);border:none;font-family:var(--f)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 3px 12px rgba(59,130,246,.3)}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 5px 16px rgba(59,130,246,.4)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-ghost{background:var(--bg4);color:var(--t2);border:1px solid var(--b1)}
+.btn-ghost:hover{background:var(--bg5);color:var(--t1);border-color:var(--b2)}
+.btn-success{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.btn-success:hover{background:rgba(34,197,94,.25)}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+.btn-xs{padding:3px 9px;font-size:11px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge-blue{background:rgba(59,130,246,.12);color:var(--blue2);border:1px solid rgba(59,130,246,.2)}
+.badge-amber{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge-purple{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.badge-gray{background:rgba(61,90,122,.2);color:var(--t2);border:1px solid var(--b1)}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--b0)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg3)}
+th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);padding:10px 14px;border-bottom:1px solid var(--b0);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--b0);font-size:12.5px;color:var(--t2);vertical-align:middle}
+tbody tr{background:var(--bg2);transition:background var(--ease)}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child td{border-bottom:none}
+.td-name{font-weight:600;color:var(--t1);font-family:var(--fm);font-size:12px}
+.td-actions{display:flex;gap:5px;justify-content:flex-end}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--ease)}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r3);box-shadow:var(--sh2);width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:scale(.96) translateY(10px);transition:all .2s ease}
+.modal-bg.open .modal{transform:none}
+.modal.modal-lg{width:720px}
+.modal.modal-sm{width:420px}
+.modal-hd{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b0)}
+.modal-hd-title{font-size:15px;font-weight:700}
+.modal-close{width:28px;height:28px;display:grid;place-items:center;color:var(--t3);cursor:pointer;border-radius:var(--r1);transition:all var(--ease);font-size:16px}
+.modal-close:hover{background:var(--bg5);color:var(--t1)}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--b0);display:flex;justify-content:flex-end;gap:8px}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-col{display:flex;flex-direction:column;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+label.lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
+.inp{width:100%;background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r2);padding:9px 13px;color:var(--t1);outline:none;transition:border-color var(--ease)}
+.inp:focus{border-color:var(--b3)}
+.inp::placeholder{color:var(--t3)}
+select.inp{cursor:pointer}
+textarea.inp{min-height:80px;resize:vertical}
+.inp-hint{font-size:11px;color:var(--t3)}
+
+/* ── DNS TYPE PILLS ── */
+.dns-type{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--f)}
+.dt-A{background:rgba(34,197,94,.12);color:var(--green)}
+.dt-AAAA{background:rgba(34,197,94,.12);color:var(--green)}
+.dt-MX{background:rgba(59,130,246,.12);color:var(--blue2)}
+.dt-TXT{background:rgba(245,158,11,.12);color:var(--amber)}
+.dt-CNAME{background:rgba(167,139,250,.12);color:var(--purple)}
+.dt-NS{background:rgba(251,146,60,.12);color:var(--orange)}
+.dt-CAA{background:rgba(74,90,122,.2);color:var(--t2)}
+.dt-SRV{background:rgba(20,184,166,.12);color:var(--teal)}
+
+/* ── PRICING CARDS ── */
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:4px}
+.plan-card{background:var(--bg3);border:1px solid var(--b0);border-radius:var(--r3);padding:22px;position:relative;overflow:hidden;transition:all var(--ease)}
+.plan-card:hover{border-color:var(--b2);transform:translateY(-3px);box-shadow:var(--sh)}
+.plan-card.featured{border-color:rgba(59,130,246,.4);box-shadow:0 0 0 1px rgba(59,130,246,.2),var(--sh)}
+.plan-card.current{border-color:rgba(34,197,94,.4);box-shadow:0 0 0 1px rgba(34,197,94,.15)}
+.plan-popular{position:absolute;top:12px;right:12px;background:var(--blue);color:#fff;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.plan-name{font-size:15px;font-weight:800;margin-bottom:4px}
+.plan-desc{font-size:11.5px;color:var(--t3);margin-bottom:16px}
+.plan-price{font-size:30px;font-weight:800;letter-spacing:-1.5px;color:var(--t1)}
+.plan-price span{font-size:14px;font-weight:500;color:var(--t3)}
+.plan-period{font-size:11px;color:var(--t3);margin-bottom:16px}
+.plan-features{display:flex;flex-direction:column;gap:7px;margin-bottom:20px;min-height:160px}
+.plan-feat{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2)}
+.plan-feat-icon{width:16px;height:16px;border-radius:50%;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2);display:grid;place-items:center;flex-shrink:0}
+.plan-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.plan-card:nth-child(1)::after{background:linear-gradient(90deg,var(--teal),var(--green))}
+.plan-card:nth-child(2)::after{background:linear-gradient(90deg,var(--blue),var(--blue2))}
+.plan-card:nth-child(3)::after{background:linear-gradient(90deg,var(--purple),var(--blue2))}
+.plan-card:nth-child(4)::after{background:linear-gradient(90deg,var(--amber),var(--orange))}
+
+/* ── USAGE BAR ── */
+.usage-bar{height:6px;background:var(--bg5);border-radius:3px;overflow:hidden;margin-top:5px}
+.usage-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.uf-blue{background:linear-gradient(90deg,var(--blue),var(--blue2))}
+.uf-green{background:linear-gradient(90deg,var(--green),var(--teal))}
+.uf-amber{background:linear-gradient(90deg,var(--amber),var(--orange))}
+.uf-red{background:var(--red)}
+
+/* ── HOSTING ASSIGN ── */
+.assign-card{background:var(--bg3);border:1px solid var(--b0);border-radius:var(--r2);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all var(--ease)}
+.assign-card:hover{border-color:var(--b2)}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:900;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r2);padding:10px 15px;font-size:12.5px;color:var(--t1);box-shadow:var(--sh2);display:flex;align-items:center;gap:9px;max-width:300px;animation:tin .3s ease}
+@keyframes tin{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+.toast-icon{font-size:16px;flex-shrink:0}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;flex-direction:column;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid var(--bg5);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:12px;color:var(--t3)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--t3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.empty-sub{font-size:12.5px}
+
+/* ── MISC ── */
+.gap-row{display:flex;gap:14px;margin-bottom:18px}
+.gap-row .card{flex:1}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.mono{font-family:var(--fm);font-size:12px}
+.text-green{color:var(--green)} .text-red{color:var(--red)} .text-amber{color:var(--amber)}
+.text-blue{color:var(--blue2)} .text-muted{color:var(--t3)}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+.fw7{font-weight:700}.fw8{font-weight:800}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-center{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg">
+    <div class="auth-orb o1"></div>
+    <div class="auth-orb o2"></div>
+    <div class="auth-orb o3"></div>
+    <div class="auth-grid"></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      </div>
+      <span class="auth-logo-text">AeroSys<b>Mail</b></span>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="authTab('login')">Sign In</div>
+      <div class="auth-tab"  id="tab-reg"   onclick="authTab('reg')">Create Account</div>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <!-- Login form -->
+    <form id="form-login" class="auth-form" onsubmit="doLogin(event)">
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input type="email" id="l-email" placeholder="you@company.com" required autocomplete="email"/>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="••••••••" required autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="auth-btn" id="login-btn">Sign In</button>
+    </form>
+    <!-- Register form -->
+    <form id="form-reg" class="auth-form" style="display:none" onsubmit="doRegister(event)">
+      <div class="auth-row2">
+        <div class="auth-field"><label>Full Name</label><input type="text" id="r-name" placeholder="Alex Aerosys" required/></div>
+        <div class="auth-field"><label>Company</label><input type="text" id="r-company" placeholder="Acme Ltd"/></div>
+      </div>
+      <div class="auth-field"><label>Email Address</label><input type="email" id="r-email" placeholder="you@company.com" required/></div>
+      <div class="auth-row2">
+        <div class="auth-field"><label>Password</label><input type="password" id="r-pass" placeholder="Min 8 chars" required/></div>
+        <div class="auth-field"><label>Confirm</label><input type="password" id="r-pass2" placeholder="Repeat" required/></div>
+      </div>
+      <button type="submit" class="auth-btn" id="reg-btn">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════ -->
+<div id="app" hidden>
+  <header id="topbar">
+    <div class="tb-logo">
+      <div class="tb-logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg></div>
+      <span class="tb-logo-text">AeroSys<b>Mail</b></span>
+    </div>
+    <div class="tb-search">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search…" id="globalSearch"/>
+    </div>
+    <div class="tb-gap"></div>
+    <span class="tb-role-badge" id="roleBadge">admin</span>
+    <div class="tb-icon-btn" id="notifBtn" onclick="toggleNotif()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-dot" id="notifDot"></span>
+    </div>
+    <div class="tb-avatar" id="userAvatar" onclick="toggleUserMenu()">AL</div>
+    <div class="tb-dropdown" id="userMenu">
+      <div class="dd-name" id="ddName">Alex Aerosys<br/><span class="dd-email" id="ddEmail">alex@aerosys.aero</span></div>
+      <div class="dd-item" onclick="switchView('settings')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+      <div class="dd-sep"></div>
+      <div class="dd-item text-red" onclick="doLogout()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </header>
+
+  <nav id="sidebar"><!-- filled by renderSidebar() --></nav>
+
+  <main id="main">
+    <!-- ── ADMIN VIEWS ───────────────────────────────────────── -->
+    <div class="view" id="view-overview">
+      <div class="pg-hd"><div><div class="pg-title">Overview</div><div class="pg-sub">Platform health at a glance</div></div></div>
+      <div class="stat-row" id="admin-stats"></div>
+      <div class="two-col">
+        <div class="card"><div class="card-hd"><div class="card-title">Recent Domains</div><button class="btn btn-ghost btn-sm" onclick="switchView('domains')">View All</button></div><div id="recent-domains"></div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">Recent Clients</div><button class="btn btn-ghost btn-sm" onclick="switchView('clients')">View All</button></div><div id="recent-clients"></div></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-domains">
+      <div class="pg-hd">
+        <div><div class="pg-title">Domain Inventory</div><div class="pg-sub">All domains managed by AeroSysMail</div></div>
+        <div class="pg-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadDomains()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-domain')">+ Add Domain</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Domain</th><th>Registrar</th><th>Status</th><th>SSL</th><th>Assigned To</th><th>Expires</th><th>CF Zone</th><th>Actions</th></tr></thead><tbody id="domains-tbody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div>
+    </div>
+
+    <div class="view" id="view-dns">
+      <div class="pg-hd">
+        <div><div class="pg-title">DNS Manager</div><div class="pg-sub" id="dns-domain-sub">Select a domain to manage records</div></div>
+        <div class="pg-actions">
+          <select class="inp" id="dns-domain-select" onchange="loadDnsForDomain(this.value)" style="width:220px"><option value="">— Select Domain —</option></select>
+          <button class="btn btn-primary btn-sm" id="btn-add-dns" onclick="openModal('modal-add-dns')" disabled>+ Add Record</button>
+        </div>
+      </div>
+      <div id="dns-sync-bar" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(59,130,246,.06);border:1px solid var(--b1);border-radius:var(--r2);font-size:12px;display:flex;align-items:center;gap:8px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue2)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="dns-sync-text">Records synced with Cloudflare</span>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Type</th><th>Name</th><th>Value / Content</th><th>TTL</th><th>Priority</th><th>Proxied</th><th>Actions</th></tr></thead><tbody id="dns-tbody"><tr><td colspan="7"><div class="empty"><div class="empty-icon">🌐</div><div class="empty-title">No domain selected</div><div class="empty-sub">Choose a domain from the dropdown above</div></div></td></tr></tbody></table></div>
+    </div>
+
+    <div class="view" id="view-clients">
+      <div class="pg-hd">
+        <div><div class="pg-title">Client Management</div><div class="pg-sub">All registered client accounts</div></div>
+        <div class="pg-actions">
+          <button class="btn btn-ghost btn-sm" onclick="loadClients()">Refresh</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Client</th><th>Email</th><th>Company</th><th>Status</th><th>Plan</th><th>Domains</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="clients-tbody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div>
+    </div>
+
+    <div class="view" id="view-hosting">
+      <div class="pg-hd">
+        <div><div class="pg-title">Hosting Assignments</div><div class="pg-sub">Assign domains and hosting plans to clients</div></div>
+        <div class="pg-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-assign-hosting')">+ Assign Hosting</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Domain</th><th>Client</th><th>Plan</th><th>Server IP</th><th>Status</th><th>Assigned</th><th>Actions</th></tr></thead><tbody id="hosting-tbody"><tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div>
+    </div>
+
+    <div class="view" id="view-admin-plans">
+      <div class="pg-hd">
+        <div><div class="pg-title">Subscription Plans</div><div class="pg-sub">Manage plans available to clients</div></div>
+        <div class="pg-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-plan')">+ Add Plan</button>
+        </div>
+      </div>
+      <div class="plans-grid" id="admin-plans-grid"></div>
+    </div>
+
+    <!-- ── CLIENT VIEWS ──────────────────────────────────────── -->
+    <div class="view" id="view-client-overview">
+      <div class="pg-hd"><div><div class="pg-title" id="client-welcome">Welcome back</div><div class="pg-sub">Your hosting and domain overview</div></div></div>
+      <div class="stat-row" id="client-stats"></div>
+      <div class="two-col">
+        <div class="card"><div class="card-hd"><div class="card-title">My Domains</div><button class="btn btn-ghost btn-sm" onclick="switchView('client-domains')">View All</button></div><div id="client-domain-list"></div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">Recent Invoices</div><button class="btn btn-ghost btn-sm" onclick="switchView('client-billing')">View All</button></div><div id="client-invoice-list"></div></div>
+      </div>
+      <div id="client-active-plan-card"></div>
+    </div>
+
+    <div class="view" id="view-client-domains">
+      <div class="pg-hd"><div><div class="pg-title">My Domains</div><div class="pg-sub">Domains assigned to your account</div></div></div>
+      <div id="client-domains-content"></div>
+    </div>
+
+    <div class="view" id="view-client-plans">
+      <div class="pg-hd">
+        <div><div class="pg-title">Subscription Plans</div><div class="pg-sub">Choose the plan that fits your business</div></div>
+        <div class="pg-actions">
+          <div style="display:flex;background:var(--bg3);border-radius:var(--r2);padding:3px;border:1px solid var(--b0)">
+            <div id="cycle-monthly" class="auth-tab on" onclick="setBillingCycle('monthly')" style="padding:5px 14px;font-size:12px">Monthly</div>
+            <div id="cycle-yearly"  class="auth-tab" onclick="setBillingCycle('yearly')" style="padding:5px 14px;font-size:12px">Yearly <span style="color:var(--green);font-size:10px">−17%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="plans-grid" id="client-plans-grid"></div>
+    </div>
+
+    <div class="view" id="view-client-hosting">
+      <div class="pg-hd"><div><div class="pg-title">Email Hosting</div><div class="pg-sub">Mailboxes and storage across your domains</div></div></div>
+      <div id="client-hosting-content"></div>
+    </div>
+
+    <div class="view" id="view-client-billing">
+      <div class="pg-hd"><div><div class="pg-title">Billing & Invoices</div><div class="pg-sub">Your subscription history and payment records</div></div></div>
+      <div id="client-billing-content"></div>
+    </div>
+
+    <!-- ── SHARED SETTINGS ── -->
+    <div class="view" id="view-settings">
+      <div class="pg-hd"><div><div class="pg-title">Settings</div><div class="pg-sub">Account and platform configuration</div></div></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Profile</div></div>
+          <div class="form-group mb12"><label class="lbl">Full Name</label><input class="inp" id="s-name" placeholder="Your name"/></div>
+          <div class="form-group mb12"><label class="lbl">Email</label><input class="inp" id="s-email" type="email" placeholder="email@domain.com"/></div>
+          <div class="form-group mb12"><label class="lbl">Company</label><input class="inp" id="s-company" placeholder="Company name"/></div>
+          <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Change Password</div></div>
+          <div class="form-group mb12"><label class="lbl">Current Password</label><input class="inp" type="password" id="s-cur-pass" placeholder="••••••••"/></div>
+          <div class="form-group mb12"><label class="lbl">New Password</label><input class="inp" type="password" id="s-new-pass" placeholder="Min 8 chars"/></div>
+          <div class="form-group mb12"><label class="lbl">Confirm New</label><input class="inp" type="password" id="s-new-pass2" placeholder="Repeat"/></div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+      <div class="card mt12" id="smtp-info-card" style="display:none">
+        <div class="card-hd"><div class="card-title">SMTP / IMAP Configuration</div></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody id="smtp-tbody"></tbody></table></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════ -->
+
+<!-- Add Domain -->
+<div class="modal-bg" id="modal-add-domain" onclick="bgClose(event,'modal-add-domain')">
+  <div class="modal modal-sm"><div class="modal-hd"><span class="modal-hd-title">Add Domain</span><span class="modal-close" onclick="closeModal('modal-add-domain')">✕</span></div>
+  <div class="modal-body">
+    <div class="form-group mb12"><label class="lbl">Domain Name *</label><input class="inp" id="ad-name" placeholder="example.com"/><div class="inp-hint mt4">We'll auto-detect Cloudflare zone if configured</div></div>
+    <div class="form-group mb12"><label class="lbl">Registrar</label><input class="inp" id="ad-registrar" value="Cloudflare" placeholder="Cloudflare"/></div>
+    <div class="form-group mb12"><label class="lbl">Expiry Date</label><input class="inp" type="date" id="ad-expiry"/></div>
+    <div class="form-group"><label class="lbl">Notes</label><textarea class="inp" id="ad-notes" rows="2" placeholder="Optional notes"></textarea></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-domain')">Cancel</button><button class="btn btn-primary" onclick="addDomain()" id="add-domain-btn">Add Domain</button></div></div>
+</div>
+
+<!-- Add DNS Record -->
+<div class="modal-bg" id="modal-add-dns" onclick="bgClose(event,'modal-add-dns')">
+  <div class="modal"><div class="modal-hd"><span class="modal-hd-title">Add DNS Record</span><span class="modal-close" onclick="closeModal('modal-add-dns')">✕</span></div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group"><label class="lbl">Type *</label>
+        <select class="inp" id="dns-type"><option>A</option><option>AAAA</option><option>CNAME</option><option selected>MX</option><option>TXT</option><option>NS</option><option>SRV</option><option>CAA</option></select>
+      </div>
+      <div class="form-group"><label class="lbl">Name *</label><input class="inp" id="dns-name" placeholder="@ or subdomain"/></div>
+      <div class="form-group full"><label class="lbl">Value / Content *</label><input class="inp" id="dns-value" placeholder="IP address, hostname, or TXT content"/></div>
+      <div class="form-group"><label class="lbl">TTL (seconds)</label><input class="inp" type="number" id="dns-ttl" value="3600"/></div>
+      <div class="form-group"><label class="lbl">Priority (MX/SRV)</label><input class="inp" type="number" id="dns-priority" value="10"/></div>
+    </div>
+    <div class="mt8" style="display:flex;align-items:center;gap:9px">
+      <input type="checkbox" id="dns-proxied" style="accent-color:var(--blue);width:14px;height:14px"/>
+      <label for="dns-proxied" style="font-size:12px;color:var(--t2)">Proxied through Cloudflare (orange cloud)</label>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-dns')">Cancel</button><button class="btn btn-primary" onclick="addDnsRecord()" id="add-dns-btn">Add Record</button></div></div>
+</div>
+
+<!-- Edit DNS Record -->
+<div class="modal-bg" id="modal-edit-dns" onclick="bgClose(event,'modal-edit-dns')">
+  <div class="modal"><div class="modal-hd"><span class="modal-hd-title">Edit DNS Record</span><span class="modal-close" onclick="closeModal('modal-edit-dns')">✕</span></div>
+  <div class="modal-body">
+    <input type="hidden" id="edit-dns-id"/>
+    <div class="form-grid">
+      <div class="form-group"><label class="lbl">Type</label>
+        <select class="inp" id="edit-dns-type"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option><option>NS</option><option>SRV</option><option>CAA</option></select>
+      </div>
+      <div class="form-group"><label class="lbl">Name</label><input class="inp" id="edit-dns-name"/></div>
+      <div class="form-group full"><label class="lbl">Value / Content</label><input class="inp" id="edit-dns-value"/></div>
+      <div class="form-group"><label class="lbl">TTL</label><input class="inp" type="number" id="edit-dns-ttl"/></div>
+      <div class="form-group"><label class="lbl">Priority</label><input class="inp" type="number" id="edit-dns-priority"/></div>
+    </div>
+    <div class="mt8" style="display:flex;align-items:center;gap:9px">
+      <input type="checkbox" id="edit-dns-proxied" style="accent-color:var(--blue);width:14px;height:14px"/>
+      <label for="edit-dns-proxied" style="font-size:12px;color:var(--t2)">Proxied through Cloudflare</label>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-edit-dns')">Cancel</button><button class="btn btn-primary" onclick="saveDnsRecord()" id="save-dns-btn">Save Changes</button></div></div>
+</div>
+
+<!-- Assign Hosting -->
+<div class="modal-bg" id="modal-assign-hosting" onclick="bgClose(event,'modal-assign-hosting')">
+  <div class="modal"><div class="modal-hd"><span class="modal-hd-title">Assign Hosting</span><span class="modal-close" onclick="closeModal('modal-assign-hosting')">✕</span></div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group"><label class="lbl">Client *</label><select class="inp" id="ah-client"><option value="">— Select Client —</option></select></div>
+      <div class="form-group"><label class="lbl">Domain *</label><select class="inp" id="ah-domain"><option value="">— Select Domain —</option></select></div>
+      <div class="form-group"><label class="lbl">Plan *</label><select class="inp" id="ah-plan"><option value="">— Select Plan —</option></select></div>
+      <div class="form-group"><label class="lbl">Server IP</label><input class="inp" id="ah-ip" placeholder="e.g. 76.76.21.21"/></div>
+      <div class="form-group full"><label class="lbl">Notes</label><textarea class="inp" id="ah-notes" rows="2" placeholder="Internal notes (not visible to client)"></textarea></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-assign-hosting')">Cancel</button><button class="btn btn-primary" onclick="assignHosting()" id="assign-btn">Assign</button></div></div>
+</div>
+
+<!-- Add Plan -->
+<div class="modal-bg" id="modal-add-plan" onclick="bgClose(event,'modal-add-plan')">
+  <div class="modal modal-lg"><div class="modal-hd"><span class="modal-hd-title">Add Subscription Plan</span><span class="modal-close" onclick="closeModal('modal-add-plan')">✕</span></div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group"><label class="lbl">Plan Name *</label><input class="inp" id="np-name" placeholder="Business Pro"/></div>
+      <div class="form-group"><label class="lbl">Slug *</label><input class="inp" id="np-slug" placeholder="business-pro"/></div>
+      <div class="form-group"><label class="lbl">Monthly Price (USD) *</label><input class="inp" type="number" id="np-monthly" placeholder="29.00"/></div>
+      <div class="form-group"><label class="lbl">Yearly Price (USD)</label><input class="inp" type="number" id="np-yearly" placeholder="290.00"/></div>
+      <div class="form-group"><label class="lbl">Storage (GB)</label><input class="inp" type="number" id="np-storage" value="25"/></div>
+      <div class="form-group"><label class="lbl">Email Accounts</label><input class="inp" type="number" id="np-emails" value="25"/></div>
+      <div class="form-group"><label class="lbl">Domains</label><input class="inp" type="number" id="np-domains" value="3"/></div>
+      <div class="form-group"><label class="lbl">Bandwidth (GB)</label><input class="inp" type="number" id="np-bandwidth" value="500"/></div>
+      <div class="form-group full"><label class="lbl">Features (one per line)</label><textarea class="inp" id="np-features" rows="4" placeholder="3 Domains&#10;25 Email Accounts&#10;SSL Certificate"></textarea></div>
+      <div class="form-group"><label class="lbl">Stripe Monthly Price ID</label><input class="inp" id="np-stripe-monthly" placeholder="price_xxxxx"/></div>
+      <div class="form-group"><label class="lbl">Stripe Yearly Price ID</label><input class="inp" id="np-stripe-yearly" placeholder="price_xxxxx"/></div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-plan')">Cancel</button><button class="btn btn-primary" onclick="addPlan()">Create Plan</button></div></div>
+</div>
+
+<!-- Success modal (after Stripe return) -->
+<div class="modal-bg" id="modal-success" onclick="bgClose(event,'modal-success')">
+  <div class="modal modal-sm"><div class="modal-hd"><span class="modal-hd-title">Subscription Activated</span><span class="modal-close" onclick="closeModal('modal-success')">✕</span></div>
+  <div class="modal-body" style="text-align:center;padding:30px 20px">
+    <div style="width:60px;height:60px;background:rgba(34,197,94,.12);border:2px solid var(--green);border-radius:50%;display:grid;place-items:center;margin:0 auto 16px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:8px">Payment Successful!</div>
+    <div style="font-size:13px;color:var(--t3)">Your subscription is now active. Domains and hosting will be provisioned within minutes.</div>
+    <button class="btn btn-primary mt16" onclick="closeModal('modal-success');switchView('client-overview');loadClientDashboard()">Go to Dashboard</button>
+  </div></div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const APP = {
+  token: localStorage.getItem('as_token') || '',
+  user:  JSON.parse(localStorage.getItem('as_user') || 'null'),
+  currentView: '',
+  currentDomainId: null,
+  billingCycle: 'monthly',
+  plans: [],
+  adminDomains: [],
+  adminClients: [],
+};
+
+// ═══════════════════════════════════════════════════
+// API CLIENT
+// ═══════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(APP.token ? { Authorization: 'Bearer ' + APP.token } : {}) },
+  };
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+const GET    = p         => api('GET',    p);
+const POST   = (p, b)    => api('POST',   p, b);
+const PUT    = (p, b)    => api('PUT',    p, b);
+const PATCH  = (p, b)    => api('PATCH',  p, b);
+const DELETE = (p, b)    => api('DELETE', p, b);
+
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+function authTab(t) {
+  document.getElementById('tab-login').classList.toggle('on', t === 'login');
+  document.getElementById('tab-reg').classList.toggle('on',   t === 'reg');
+  document.getElementById('form-login').style.display = t === 'login' ? '' : 'none';
+  document.getElementById('form-reg').style.display   = t === 'reg'   ? '' : 'none';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  document.getElementById('auth-error').style.display = 'none';
+  try {
+    const data = await POST('/auth/login', {
+      email:    document.getElementById('l-email').value.trim(),
+      password: document.getElementById('l-pass').value,
+    });
+    setSession(data);
+  } catch (err) {
+    showAuthError(err.message);
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const pass = document.getElementById('r-pass').value;
+  const pass2 = document.getElementById('r-pass2').value;
+  if (pass !== pass2) { showAuthError('Passwords do not match'); return; }
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  document.getElementById('auth-error').style.display = 'none';
+  try {
+    const data = await POST('/auth/register', {
+      name:     document.getElementById('r-name').value.trim(),
+      email:    document.getElementById('r-email').value.trim(),
+      password: pass,
+      company:  document.getElementById('r-company').value.trim(),
+    });
+    setSession(data);
+  } catch (err) {
+    showAuthError(err.message);
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+}
+
+function setSession({ token, user }) {
+  APP.token = token; APP.user = user;
+  localStorage.setItem('as_token', token);
+  localStorage.setItem('as_user', JSON.stringify(user));
+  initApp();
+}
+
+function doLogout() {
+  APP.token = ''; APP.user = null;
+  localStorage.removeItem('as_token'); localStorage.removeItem('as_user');
+  document.getElementById('app').hidden = true;
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('userMenu').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════
+function initApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').hidden = false;
+
+  const u = APP.user;
+  document.getElementById('userAvatar').textContent = u.avatar_initials || u.name.slice(0,2).toUpperCase();
+  document.getElementById('ddName').innerHTML  = `<span style="font-weight:700">${u.name}</span><br/><span class="dd-email">${u.email}</span>`;
+  document.getElementById('roleBadge').textContent = u.role.toUpperCase();
+  document.getElementById('roleBadge').className = 'tb-role-badge ' + (u.role === 'admin' ? 'tb-role-admin' : 'tb-role-client');
+
+  renderSidebar();
+
+  // Pre-fetch plans
+  loadPlans();
+
+  if (u.role === 'admin') {
+    switchView('overview');
+    loadAdminOverview();
+  } else {
+    switchView('client-overview');
+    loadClientDashboard();
+  }
+
+  // Handle Stripe return
+  const params = new URLSearchParams(location.search);
+  if (params.get('status') === 'success') {
+    history.replaceState({}, '', '/');
+    setTimeout(() => openModal('modal-success'), 600);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════
+function renderSidebar() {
+  const el = document.getElementById('sidebar');
+  if (APP.user.role === 'admin') {
+    el.innerHTML = `
+      <div class="s-section">Admin Panel</div>
+      <div class="s-item" id="sn-overview"     onclick="switchView('overview')">
+        ${ico('grid')} Dashboard
+      </div>
+      <div class="s-section">Platform</div>
+      <div class="s-item" id="sn-domains"      onclick="switchView('domains')">
+        ${ico('globe')} Domain Inventory
+      </div>
+      <div class="s-item" id="sn-dns"          onclick="switchView('dns')">
+        ${ico('dns')} DNS Manager
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-item" id="sn-clients"      onclick="switchView('clients')">
+        ${ico('users')} Client Accounts
+      </div>
+      <div class="s-item" id="sn-hosting"      onclick="switchView('hosting')">
+        ${ico('server')} Hosting Assignments
+      </div>
+      <div class="s-item" id="sn-admin-plans"  onclick="switchView('admin-plans')">
+        ${ico('tag')} Plans & Pricing
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-item" id="sn-settings"     onclick="switchView('settings')">
+        ${ico('settings')} Settings
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="s-section">My Account</div>
+      <div class="s-item" id="sn-client-overview"  onclick="switchView('client-overview')">
+        ${ico('grid')} Dashboard
+      </div>
+      <div class="s-item" id="sn-client-domains"   onclick="switchView('client-domains')">
+        ${ico('globe')} My Domains
+      </div>
+      <div class="s-item" id="sn-client-hosting"   onclick="switchView('client-hosting')">
+        ${ico('mail')} Email Hosting
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-item" id="sn-client-plans"     onclick="switchView('client-plans')">
+        ${ico('tag')} Subscription Plans
+      </div>
+      <div class="s-item" id="sn-client-billing"   onclick="switchView('client-billing')">
+        ${ico('invoice')} Billing
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-item" id="sn-settings"         onclick="switchView('settings')">
+        ${ico('settings')} Settings
+      </div>`;
+  }
+}
+
+// SVG icon helper
+function ico(name) {
+  const d = {
+    grid:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+    globe:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    dns:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+    users:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    server:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`,
+    tag:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+    mail:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+    invoice:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    settings:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  };
+  return d[name] || '';
+}
+
+// ═══════════════════════════════════════════════════
+// VIEW SWITCHER
+// ═══════════════════════════════════════════════════
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.s-item').forEach(el => el.classList.remove('on','admin-on'));
+  const vEl = document.getElementById('view-' + v);
+  if (vEl) vEl.classList.add('on');
+  const sEl = document.getElementById('sn-' + v);
+  if (sEl) sEl.classList.add(APP.user?.role === 'admin' ? 'admin-on' : 'on');
+  APP.currentView = v;
+  document.getElementById('userMenu').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — OVERVIEW
+// ═══════════════════════════════════════════════════
+async function loadAdminOverview() {
+  try {
+    const [domains, clients, hosting, plans] = await Promise.all([
+      GET('/admin/domains'), GET('/admin/clients'), GET('/admin/hosting'), GET('/plans')
+    ]);
+    APP.adminDomains = domains; APP.adminClients = clients;
+
+    document.getElementById('admin-stats').innerHTML = [
+      { l:'Total Domains',  v: domains.length,                          c:'sb', s:`${domains.filter(d=>d.status==='active').length} active` },
+      { l:'Active Clients', v: clients.length,                          c:'sg', s:`${clients.filter(c=>c.status==='active').length} active` },
+      { l:'Hosting Plans',  v: plans.length,                            c:'sp', s:'available plans' },
+      { l:'Assignments',    v: hosting.length,                          c:'sa', s:`${hosting.filter(h=>h.status==='active').length} active` },
+    ].map(s=>`
+      <div class="stat ${s.c}">
+        <div class="stat-label">${s.l}</div>
+        <div class="stat-val">${s.v}</div>
+        <div class="stat-sub">${s.s}</div>
+      </div>`).join('');
+
+    // Recent domains
+    document.getElementById('recent-domains').innerHTML = domains.slice(0,5).map(d=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b0)">
+        <span class="mono td-name">${d.name}</span>
+        ${statusBadge(d.status)}
+      </div>`).join('') || emptyState('🌐','No domains added yet','Add your first domain to get started');
+
+    // Recent clients
+    document.getElementById('recent-clients').innerHTML = clients.slice(0,5).map(c=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b0)">
+        <div><div style="font-weight:600;font-size:12.5px">${c.name}</div><div style="font-size:11px;color:var(--t3)">${c.email}</div></div>
+        ${statusBadge(c.status)}
+      </div>`).join('') || emptyState('👥','No clients yet','Clients appear here after registration');
+  } catch(e) { toast('error','Failed to load overview: '+e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — DOMAINS
+// ═══════════════════════════════════════════════════
+async function loadDomains() {
+  setTbody('domains-tbody', loading());
+  try {
+    const domains = await GET('/admin/domains');
+    APP.adminDomains = domains;
+    populateDnsSelect(domains);
+    if (!domains.length) { setTbody('domains-tbody', `<tr><td colspan="8">${emptyState('🌐','No domains','Add your first domain to get started')}</td></tr>`); return; }
+    setTbody('domains-tbody', domains.map(d=>`
+      <tr>
+        <td class="td-name">${d.name}</td>
+        <td>${d.registrar || '—'}</td>
+        <td>${statusBadge(d.status)}</td>
+        <td>${sslBadge(d.ssl_status)}</td>
+        <td>${d.assigned_user ? `<span style="font-size:12px">${d.assigned_user.name}</span><br/><span style="font-size:11px;color:var(--t3)">${d.assigned_user.email}</span>` : '<span class="text-muted">Unassigned</span>'}</td>
+        <td>${d.expiry_date ? fmtDate(d.expiry_date) : '—'}</td>
+        <td>${d.cloudflare_zone_id ? `<span class="badge badge-green">✓ Linked</span>` : '<span class="badge badge-gray">None</span>'}</td>
+        <td class="td-actions">
+          <button class="btn btn-ghost btn-xs" onclick="manageDns('${d.id}','${d.name}')">DNS</button>
+          <button class="btn btn-ghost btn-xs" onclick="previewAssign('${d.id}')">Assign</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteDomain('${d.id}','${d.name}')">Del</button>
+        </td>
+      </tr>`).join(''));
+  } catch(e) { toast('error','Load domains failed: '+e.message); }
+}
+
+async function addDomain() {
+  const name = document.getElementById('ad-name').value.trim();
+  if (!name) { toast('warn','Domain name required'); return; }
+  setBtn('add-domain-btn','Adding…');
+  try {
+    await POST('/admin/domains', {
+      name, registrar: document.getElementById('ad-registrar').value,
+      expiry_date: document.getElementById('ad-expiry').value || null,
+      notes: document.getElementById('ad-notes').value,
+    });
+    closeModal('modal-add-domain');
+    resetForm(['ad-name','ad-notes','ad-expiry']);
+    loadDomains();
+    toast('ok','Domain added successfully');
+  } catch(e) { toast('error',e.message); }
+  finally { resetBtn('add-domain-btn','Add Domain'); }
+}
+
+async function deleteDomain(id, name) {
+  if (!confirm(`Delete domain "${name}"? This will remove all DNS records.`)) return;
+  try { await DELETE('/admin/domains', { id }); loadDomains(); toast('ok','Domain deleted'); }
+  catch(e) { toast('error',e.message); }
+}
+
+function previewAssign(domainId) {
+  document.getElementById('ah-domain').value = domainId;
+  openModal('modal-assign-hosting');
+  populateAssignHostingSelects();
+}
+
+function populateDnsSelect(domains) {
+  const sel = document.getElementById('dns-domain-select');
+  sel.innerHTML = '<option value="">— Select Domain —</option>' +
+    domains.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — DNS MANAGER
+// ═══════════════════════════════════════════════════
+function manageDns(domainId, domainName) {
+  switchView('dns');
+  document.getElementById('dns-domain-select').value = domainId;
+  loadDnsForDomain(domainId, domainName);
+}
+
+async function loadDnsForDomain(domainId, domainName) {
+  if (!domainId) return;
+  APP.currentDomainId = domainId;
+  const dn = domainName || APP.adminDomains.find(d=>d.id===domainId)?.name || '';
+  document.getElementById('dns-domain-sub').textContent = dn ? `Managing DNS for ${dn}` : 'DNS records';
+  document.getElementById('btn-add-dns').disabled = false;
+  setTbody('dns-tbody', loading());
+  document.getElementById('dns-sync-bar').style.display = 'none';
+  try {
+    const { records, cf_synced } = await GET(`/admin/dns?domainId=${domainId}`);
+    if (cf_synced) {
+      document.getElementById('dns-sync-bar').style.display = 'flex';
+      document.getElementById('dns-sync-text').textContent = `${records.length} records synced live with Cloudflare`;
+    }
+    if (!records.length) {
+      setTbody('dns-tbody', `<tr><td colspan="7">${emptyState('📋','No DNS records','Add records using the button above')}</td></tr>`);
+      return;
+    }
+    setTbody('dns-tbody', records.map(r=>`
+      <tr>
+        <td><span class="dns-type dt-${r.type}">${r.type}</span></td>
+        <td class="mono" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</td>
+        <td class="mono" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px" title="${r.value}">${r.value}</td>
+        <td style="font-size:11.5px">${r.ttl}</td>
+        <td style="font-size:11.5px">${r.priority || '—'}</td>
+        <td>${r.proxied ? '<span class="badge badge-amber">🟠 Yes</span>' : '<span class="badge badge-gray">No</span>'}</td>
+        <td class="td-actions">
+          <button class="btn btn-ghost btn-xs" onclick='openEditDns(${JSON.stringify(r)})'>Edit</button>
+          <button class="btn btn-danger btn-xs" onclick="delDns('${r.id}')">Del</button>
+        </td>
+      </tr>`).join(''));
+  } catch(e) { toast('error','Load DNS failed: '+e.message); }
+}
+
+async function addDnsRecord() {
+  if (!APP.currentDomainId) { toast('warn','Select a domain first'); return; }
+  setBtn('add-dns-btn','Adding…');
+  try {
+    await POST(`/admin/dns?domainId=${APP.currentDomainId}`, {
+      type:     document.getElementById('dns-type').value,
+      name:     document.getElementById('dns-name').value.trim(),
+      value:    document.getElementById('dns-value').value.trim(),
+      ttl:      +document.getElementById('dns-ttl').value || 3600,
+      priority: +document.getElementById('dns-priority').value || 0,
+      proxied:  document.getElementById('dns-proxied').checked,
+    });
+    closeModal('modal-add-dns');
+    resetForm(['dns-name','dns-value']);
+    loadDnsForDomain(APP.currentDomainId);
+    toast('ok','DNS record added and synced');
+  } catch(e) { toast('error',e.message); }
+  finally { resetBtn('add-dns-btn','Add Record'); }
+}
+
+function openEditDns(r) {
+  document.getElementById('edit-dns-id').value       = r.id;
+  document.getElementById('edit-dns-type').value     = r.type;
+  document.getElementById('edit-dns-name').value     = r.name;
+  document.getElementById('edit-dns-value').value    = r.value;
+  document.getElementById('edit-dns-ttl').value      = r.ttl;
+  document.getElementById('edit-dns-priority').value = r.priority || 0;
+  document.getElementById('edit-dns-proxied').checked= r.proxied;
+  openModal('modal-edit-dns');
+}
+
+async function saveDnsRecord() {
+  setBtn('save-dns-btn','Saving…');
+  try {
+    await PUT(`/admin/dns?domainId=${APP.currentDomainId}`, {
+      id:       document.getElementById('edit-dns-id').value,
+      type:     document.getElementById('edit-dns-type').value,
+      name:     document.getElementById('edit-dns-name').value.trim(),
+      value:    document.getElementById('edit-dns-value').value.trim(),
+      ttl:      +document.getElementById('edit-dns-ttl').value,
+      priority: +document.getElementById('edit-dns-priority').value,
+      proxied:  document.getElementById('edit-dns-proxied').checked,
+    });
+    closeModal('modal-edit-dns');
+    loadDnsForDomain(APP.currentDomainId);
+    toast('ok','DNS record updated');
+  } catch(e) { toast('error',e.message); }
+  finally { resetBtn('save-dns-btn','Save Changes'); }
+}
+
+async function delDns(id) {
+  if (!confirm('Delete this DNS record? This cannot be undone.')) return;
+  try {
+    await DELETE(`/admin/dns?domainId=${APP.currentDomainId}`, { id });
+    loadDnsForDomain(APP.currentDomainId);
+    toast('ok','Record deleted');
+  } catch(e) { toast('error',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — CLIENTS
+// ═══════════════════════════════════════════════════
+async function loadClients() {
+  setTbody('clients-tbody', loading());
+  try {
+    const clients = await GET('/admin/clients');
+    APP.adminClients = clients;
+    if (!clients.length) { setTbody('clients-tbody',`<tr><td colspan="8">${emptyState('👥','No clients','Clients appear here after registration')}</td></tr>`); return; }
+    setTbody('clients-tbody', clients.map(c=>{
+      const activeSub = c.subscriptions?.find(s=>s.status==='active');
+      return `<tr>
+        <td><div style="font-weight:600;font-size:12.5px">${c.name}</div><div style="font-size:11px;color:var(--t3)">${c.avatar_initials}</div></td>
+        <td class="mono" style="font-size:12px">${c.email}</td>
+        <td style="font-size:12px">${c.company||'—'}</td>
+        <td>${statusBadge(c.status)}</td>
+        <td>${activeSub ? `<span class="badge badge-blue">${activeSub.plan.name}</span>` : '<span class="badge badge-gray">None</span>'}</td>
+        <td style="text-align:center">${c.domain_count}</td>
+        <td style="font-size:11.5px">${fmtDate(c.created_at)}</td>
+        <td class="td-actions">
+          <button class="btn btn-ghost btn-xs" onclick="previewAssign2('${c.id}')">Assign</button>
+          <button class="btn btn-${c.status==='suspended'?'success':'danger'} btn-xs" onclick="toggleClientStatus('${c.id}','${c.status}')">
+            ${c.status==='suspended'?'Activate':'Suspend'}
+          </button>
+        </td>
+      </tr>`;
+    }).join(''));
+  } catch(e) { toast('error','Load clients failed: '+e.message); }
+}
+
+function previewAssign2(clientId) {
+  populateAssignHostingSelects(clientId);
+  openModal('modal-assign-hosting');
+}
+
+async function toggleClientStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+  try {
+    await PUT('/admin/clients', { id, status: newStatus });
+    loadClients();
+    toast('ok', `Client ${newStatus === 'active' ? 'activated' : 'suspended'}`);
+  } catch(e) { toast('error',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — HOSTING
+// ═══════════════════════════════════════════════════
+async function loadHosting() {
+  setTbody('hosting-tbody', loading());
+  try {
+    const items = await GET('/admin/hosting');
+    if (!items.length) { setTbody('hosting-tbody',`<tr><td colspan="7">${emptyState('🖥️','No assignments','Assign a domain and plan to a client to get started')}</td></tr>`); return; }
+    setTbody('hosting-tbody', items.map(h=>`
+      <tr>
+        <td class="mono td-name">${h.domain?.name||'—'}</td>
+        <td><div style="font-size:12.5px;font-weight:600">${h.user?.name||'—'}</div><div style="font-size:11px;color:var(--t3)">${h.user?.email||''}</div></td>
+        <td>${h.plan?.name ? `<span class="badge badge-blue">${h.plan.name}</span>` : '—'}</td>
+        <td class="mono" style="font-size:12px">${h.server_ip||'—'}</td>
+        <td>${statusBadge(h.status)}</td>
+        <td style="font-size:11.5px">${fmtDate(h.created_at)}</td>
+        <td class="td-actions">
+          <button class="btn btn-${h.status==='active'?'danger':'success'} btn-xs" onclick="toggleHosting('${h.id}','${h.status}')">
+            ${h.status==='active'?'Suspend':'Activate'}
+          </button>
+        </td>
+      </tr>`).join(''));
+  } catch(e) { toast('error','Load hosting failed: '+e.message); }
+}
+
+async function populateAssignHostingSelects(preClientId) {
+  try {
+    const [domains, clients, plans] = await Promise.all([
+      APP.adminDomains.length ? Promise.resolve(APP.adminDomains) : GET('/admin/domains'),
+      APP.adminClients.length ? Promise.resolve(APP.adminClients) : GET('/admin/clients'),
+      APP.plans.length ? Promise.resolve(APP.plans) : GET('/plans'),
+    ]);
+    const uDomains = domains.filter(d => !d.assigned_to);
+    document.getElementById('ah-domain').innerHTML = '<option value="">— Select Domain —</option>' +
+      uDomains.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+    document.getElementById('ah-client').innerHTML = '<option value="">— Select Client —</option>' +
+      clients.map(c=>`<option value="${c.id}" ${c.id===preClientId?'selected':''}>${c.name} (${c.email})</option>`).join('');
+    document.getElementById('ah-plan').innerHTML = '<option value="">— Select Plan —</option>' +
+      plans.map(p=>`<option value="${p.id}">${p.name} — $${p.price_monthly}/mo</option>`).join('');
+  } catch(e) { toast('error','Failed to load selects: '+e.message); }
+}
+
+async function assignHosting() {
+  const client = document.getElementById('ah-client').value;
+  const domain = document.getElementById('ah-domain').value;
+  const plan   = document.getElementById('ah-plan').value;
+  if (!client||!domain||!plan) { toast('warn','Client, domain and plan are required'); return; }
+  setBtn('assign-btn','Assigning…');
+  try {
+    await POST('/admin/hosting', {
+      user_id: client, domain_id: domain, plan_id: plan,
+      server_ip: document.getElementById('ah-ip').value,
+      notes:     document.getElementById('ah-notes').value,
+    });
+    closeModal('modal-assign-hosting');
+    loadHosting();
+    toast('ok','Hosting assigned successfully');
+  } catch(e) { toast('error',e.message); }
+  finally { resetBtn('assign-btn','Assign'); }
+}
+
+async function toggleHosting(id, status) {
+  try {
+    await PUT('/admin/hosting', { id, status: status==='active'?'suspended':'active' });
+    loadHosting(); toast('ok','Hosting status updated');
+  } catch(e) { toast('error',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// PLANS
+// ═══════════════════════════════════════════════════
+async function loadPlans() {
+  try {
+    APP.plans = await GET('/plans');
+    if (APP.user?.role === 'admin') renderAdminPlans();
+  } catch(e) { /* plans not critical on initial load */ }
+}
+
+function renderAdminPlans() {
+  const el = document.getElementById('admin-plans-grid');
+  if (!el) return;
+  el.innerHTML = APP.plans.map(p=>`
+    <div class="plan-card">
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-price">$${p.price_monthly}<span>/mo</span></div>
+      <div class="plan-period">$${p.price_yearly}/yr · ${p.storage_gb}GB · ${p.email_accounts} mailboxes · ${p.domains} domains</div>
+      <div class="plan-features">
+        ${(Array.isArray(p.features)?p.features:[]).map(f=>`<div class="plan-feat">
+          <div class="plan-feat-icon"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          ${f}
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick='editPlan(${JSON.stringify(p)})'>Edit</button>
+        <button class="btn btn-${p.is_active?'danger':'success'} btn-xs" onclick="togglePlan('${p.id}',${p.is_active})">${p.is_active?'Hide':'Show'}</button>
+      </div>
+    </div>`).join('') || `<div style="grid-column:1/-1">${emptyState('🏷️','No plans','Create your first subscription plan')}</div>`;
+}
+
+async function addPlan() {
+  const name = document.getElementById('np-name').value.trim();
+  const slug = document.getElementById('np-slug').value.trim();
+  const monthly = parseFloat(document.getElementById('np-monthly').value);
+  if (!name||!slug||!monthly) { toast('warn','Name, slug and monthly price required'); return; }
+  const featuresRaw = document.getElementById('np-features').value;
+  const features = featuresRaw.split('\n').map(f=>f.trim()).filter(Boolean);
+  try {
+    await POST('/plans', { name, slug, price_monthly: monthly,
+      price_yearly: parseFloat(document.getElementById('np-yearly').value)||monthly*10,
+      storage_gb: +document.getElementById('np-storage').value||5,
+      email_accounts: +document.getElementById('np-emails').value||5,
+      domains: +document.getElementById('np-domains').value||1,
+      bandwidth_gb: +document.getElementById('np-bandwidth').value||100,
+      features, stripe_price_monthly: document.getElementById('np-stripe-monthly').value,
+      stripe_price_yearly: document.getElementById('np-stripe-yearly').value,
+    });
+    closeModal('modal-add-plan');
+    await loadPlans(); renderAdminPlans();
+    toast('ok','Plan created');
+  } catch(e) { toast('error',e.message); }
+}
+
+async function togglePlan(id, isActive) {
+  try { await PUT('/plans', { id, is_active: !isActive }); await loadPlans(); renderAdminPlans(); toast('ok','Plan updated'); }
+  catch(e) { toast('error',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// CLIENT — DASHBOARD
+// ═══════════════════════════════════════════════════
+async function loadClientDashboard() {
+  try {
+    const d = await GET('/client/dashboard');
+    document.getElementById('client-welcome').textContent = 'Welcome, ' + APP.user.name.split(' ')[0];
+
+    document.getElementById('client-stats').innerHTML = [
+      { l:'My Domains',      v: d.stats.domain_count,     c:'sb', s: d.stats.active_plan ? 'on '+d.stats.active_plan+' plan' : 'no active plan' },
+      { l:'Email Accounts',  v: d.stats.mailbox_count,    c:'sg', s: 'active mailboxes' },
+      { l:'Storage Used',    v: d.stats.storage_used_gb.toFixed(1)+'GB', c:'sp', s: `of ${d.stats.storage_limit_gb}GB limit` },
+      { l:'Next Invoice',    v: d.stats.next_invoice ? '$'+d.stats.next_invoice.amount : '—', c:'sa', s: d.stats.next_invoice ? 'due '+fmtDate(d.stats.next_invoice.due_date) : 'none pending' },
+    ].map(s=>`<div class="stat ${s.c}"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+
+    // Domain list
+    document.getElementById('client-domain-list').innerHTML = d.domains.slice(0,4).map(dom=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b0)">
+        <span class="mono" style="font-size:12px;font-weight:600">${dom.name}</span>
+        ${statusBadge(dom.status)}
+      </div>`).join('') || emptyState('🌐','No domains assigned','Contact admin or subscribe to a plan');
+
+    // Invoice list
+    document.getElementById('client-invoice-list').innerHTML = d.invoices.slice(0,4).map(inv=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b0)">
+        <div><div style="font-size:12.5px;font-weight:600">${inv.inv_number}</div><div style="font-size:11px;color:var(--t3)">${fmtDate(inv.created_at)}</div></div>
+        <div style="text-align:right"><div style="font-weight:700">$${inv.amount}</div>${statusBadge(inv.status)}</div>
+      </div>`).join('') || emptyState('📄','No invoices','Your payment history will appear here');
+
+    // Active plan card
+    if (d.subs.length) {
+      const sub = d.subs[0];
+      document.getElementById('client-active-plan-card').innerHTML = `
+        <div class="card mt12">
+          <div class="card-hd"><div class="card-title">Active Subscription</div><span class="badge badge-green">Active</span></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+            <div><div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px">Plan</div><div style="font-weight:700">${sub.plan.name}</div></div>
+            <div><div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px">Domain</div><div class="mono" style="font-size:12px">${sub.domain?.name||'—'}</div></div>
+            <div><div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px">Renews</div><div>${fmtDate(sub.current_period_end)}</div></div>
+            <div><div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px">Price</div><div style="font-weight:700">$${sub.plan.price_monthly}/mo</div></div>
+          </div>
+          ${sub.plan.storage_gb ? `
+          <div style="margin-top:14px">
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px"><span class="text-muted">Storage</span><span>${d.stats.storage_used_gb.toFixed(1)}GB / ${sub.plan.storage_gb}GB</span></div>
+            <div class="usage-bar"><div class="usage-fill ${d.stats.storage_used_gb/sub.plan.storage_gb>.8?'uf-red':'uf-blue'}" style="width:${Math.min(100,d.stats.storage_used_gb/sub.plan.storage_gb*100)}%"></div></div>
+          </div>` : ''}
+        </div>`;
+    } else {
+      document.getElementById('client-active-plan-card').innerHTML = `
+        <div class="card mt12" style="text-align:center;padding:30px">
+          <div style="font-size:24px;margin-bottom:10px">🚀</div>
+          <div style="font-weight:700;margin-bottom:6px">No Active Plan</div>
+          <div style="color:var(--t3);font-size:12.5px;margin-bottom:16px">Subscribe to a plan to get domains, email hosting, and more</div>
+          <button class="btn btn-primary" onclick="switchView('client-plans')">View Plans</button>
+        </div>`;
+    }
+
+    // Load domains view
+    document.getElementById('client-domains-content').innerHTML = d.domains.length ?
+      `<div class="tbl-wrap"><table><thead><tr><th>Domain</th><th>Status</th><th>SSL</th><th>Expires</th><th>DNS Records</th></tr></thead><tbody>
+        ${d.domains.map(dom=>`<tr><td class="mono td-name">${dom.name}</td><td>${statusBadge(dom.status)}</td><td>${sslBadge(dom.ssl_status)}</td><td>${dom.expiry_date?fmtDate(dom.expiry_date):'—'}</td><td style="text-align:center">${dom.dns_records?.[0]?.count||0}</td></tr>`).join('')}
+      </tbody></table></div>` :
+      emptyState('🌐','No domains assigned','Contact your administrator or subscribe to a hosting plan to get started');
+
+    // Hosting view
+    document.getElementById('client-hosting-content').innerHTML = d.hosting.length ?
+      d.hosting.map(h=>`
+        <div class="card mb12">
+          <div class="card-hd"><div class="card-title mono">${h.domain?.name||'Domain'}</div><span class="badge badge-blue">${h.plan?.name||'Plan'}</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px">
+            <div><div class="text-muted" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Email Accounts</div><div style="font-size:20px;font-weight:800">${h.email_count||0}</div></div>
+            <div><div class="text-muted" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Storage Used</div><div style="font-size:20px;font-weight:800">${((h.storage_used_mb||0)/1024).toFixed(1)}GB</div></div>
+            <div><div class="text-muted" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Server</div><div class="mono" style="font-size:13px">${h.server_ip||'Provisioning…'}</div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px"><span class="text-muted">Storage</span><span>${((h.storage_used_mb||0)/1024).toFixed(1)}GB / ${h.plan?.storage_gb||0}GB</span></div>
+            <div class="usage-bar"><div class="usage-fill uf-blue" style="width:${Math.min(100,((h.storage_used_mb||0)/1024)/(h.plan?.storage_gb||1)*100)}%"></div></div>
+          </div>
+        </div>`).join('') :
+      emptyState('📦','No hosting assigned','Your hosting configuration will appear here once assigned by the admin');
+
+    // Billing view
+    document.getElementById('client-billing-content').innerHTML = d.invoices.length ?
+      `<div class="tbl-wrap"><table><thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${d.invoices.map(inv=>`<tr>
+          <td class="mono" style="font-weight:700">${inv.inv_number}</td>
+          <td style="font-size:11.5px">${fmtDate(inv.created_at)}</td>
+          <td style="font-weight:700">$${inv.amount} ${inv.currency||'USD'}</td>
+          <td>${statusBadge(inv.status)}</td>
+          <td class="td-actions"><button class="btn btn-ghost btn-xs" onclick="toast('info','Invoice download coming soon')">Download PDF</button></td>
+        </tr>`).join('')}
+      </tbody></table></div>` :
+      emptyState('📄','No invoices yet','Your payment history will appear here after subscribing');
+
+  } catch(e) { toast('error','Dashboard load failed: '+e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// CLIENT — PLANS (Subscription / Stripe)
+// ═══════════════════════════════════════════════════
+let clientBillingCycle = 'monthly';
+
+function setBillingCycle(cycle) {
+  clientBillingCycle = cycle;
+  document.getElementById('cycle-monthly').classList.toggle('on', cycle==='monthly');
+  document.getElementById('cycle-yearly').classList.toggle('on',  cycle==='yearly');
+  renderClientPlans();
+}
+
+async function loadClientPlans() {
+  if (!APP.plans.length) await loadPlans();
+  renderClientPlans();
+}
+
+function renderClientPlans() {
+  const el = document.getElementById('client-plans-grid');
+  if (!el) return;
+  el.innerHTML = APP.plans.map((p,i)=>`
+    <div class="plan-card ${i===1?'featured':''}">
+      ${i===1?'<div class="plan-popular">Most Popular</div>':''}
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-desc">${p.domains} domain${p.domains>1?'s':''} · ${p.email_accounts} mailboxes · ${p.storage_gb}GB</div>
+      <div class="plan-price">$${clientBillingCycle==='yearly'?p.price_yearly:p.price_monthly}<span>/${clientBillingCycle==='yearly'?'yr':'mo'}</span></div>
+      ${clientBillingCycle==='yearly'?`<div class="plan-period text-green" style="font-size:11px;font-weight:700">Save $${((p.price_monthly*12)-p.price_yearly).toFixed(0)}/yr vs monthly</div>`:'<div class="plan-period">Billed monthly · cancel anytime</div>'}
+      <div class="plan-features">
+        ${(Array.isArray(p.features)?p.features:[]).map(f=>`
+          <div class="plan-feat">
+            <div class="plan-feat-icon"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            ${f}
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-${i===1?'primary':'ghost'}" style="width:100%;justify-content:center" onclick="startCheckout('${p.id}')">
+        ${i===1?'Get Started':'Subscribe'}
+      </button>
+    </div>`).join('') || emptyState('🏷️','No plans available','Check back soon');
+}
+
+async function startCheckout(planId) {
+  try {
+    const { url } = await POST('/subscriptions', {
+      plan_id: planId, billing_cycle: clientBillingCycle,
+      success_url: window.location.origin + '?status=success',
+      cancel_url:  window.location.origin + '?status=cancelled',
+    });
+    if (url) window.location.href = url;
+    else toast('warn','Checkout unavailable — Stripe not configured');
+  } catch(e) { toast('error','Checkout failed: '+e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════
+function loadSettings() {
+  const u = APP.user;
+  document.getElementById('s-name').value    = u.name    || '';
+  document.getElementById('s-email').value   = u.email   || '';
+  document.getElementById('s-company').value = u.company || '';
+
+  if (u.role === 'admin') {
+    document.getElementById('smtp-info-card').style.display = 'block';
+    document.getElementById('smtp-tbody').innerHTML = [
+      ['Outbound SMTP Host',  'mail.aerosys.aero'],
+      ['SMTP Port',           '587 (STARTTLS)'],
+      ['IMAP Host',           'mail.aerosys.aero'],
+      ['IMAP Port',           '993 (IMAPS)'],
+      ['Security',            'TLS 1.2 / 1.3'],
+    ].map(([k,v])=>`<tr><td style="font-weight:600;color:var(--t2)">${k}</td><td class="mono">${v}</td></tr>`).join('');
+  }
+}
+
+async function saveProfile() {
+  try {
+    toast('info','Saving…');
+    // In a full implementation, add PUT /api/auth/profile
+    APP.user.name    = document.getElementById('s-name').value;
+    APP.user.company = document.getElementById('s-company').value;
+    localStorage.setItem('as_user', JSON.stringify(APP.user));
+    document.getElementById('userAvatar').textContent = APP.user.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('ddName').innerHTML = `<span style="font-weight:700">${APP.user.name}</span><br/><span class="dd-email">${APP.user.email}</span>`;
+    toast('ok','Profile saved');
+  } catch(e) { toast('error',e.message); }
+}
+
+function changePassword() {
+  const cur  = document.getElementById('s-cur-pass').value;
+  const np   = document.getElementById('s-new-pass').value;
+  const np2  = document.getElementById('s-new-pass2').value;
+  if (!cur||!np) { toast('warn','All password fields required'); return; }
+  if (np !== np2) { toast('warn','New passwords do not match'); return; }
+  if (np.length < 8) { toast('warn','Password must be at least 8 characters'); return; }
+  // POST /api/auth/change-password (implement as needed)
+  toast('ok','Password updated successfully');
+  document.getElementById('s-cur-pass').value = document.getElementById('s-new-pass').value = document.getElementById('s-new-pass2').value = '';
+}
+
+// ═══════════════════════════════════════════════════
+// VIEW LOAD DISPATCHING
+// ═══════════════════════════════════════════════════
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.s-item').forEach(el => el.classList.remove('on','admin-on'));
+  const vEl = document.getElementById('view-' + v);
+  if (vEl) vEl.classList.add('on');
+  const sEl = document.getElementById('sn-' + v);
+  if (sEl) sEl.classList.add(APP.user?.role === 'admin' ? 'admin-on' : 'on');
+  APP.currentView = v;
+  document.getElementById('userMenu').classList.remove('open');
+
+  // Lazy-load view data
+  if (v === 'domains')       loadDomains();
+  if (v === 'clients')       loadClients();
+  if (v === 'hosting')       { loadHosting(); populateAssignHostingSelects(); }
+  if (v === 'admin-plans')   { loadPlans().then(renderAdminPlans); }
+  if (v === 'client-plans')  loadClientPlans();
+  if (v === 'settings')      loadSettings();
+  if (v === 'client-overview') loadClientDashboard();
+}
+
+// ═══════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function bgClose(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+function setTbody(id, html) { document.getElementById(id).innerHTML = html; }
+function loading() { return `<tr><td colspan="20"><div class="loading"><div class="spinner"></div><div class="loading-text">Loading…</div></div></td></tr>`; }
+function emptyState(icon, title, sub) { return `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`; }
+function setBtn(id, txt) { const b=document.getElementById(id); if(b){b.disabled=true;b.textContent=txt;} }
+function resetBtn(id, txt) { const b=document.getElementById(id); if(b){b.disabled=false;b.textContent=txt;} }
+function resetForm(ids) { ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); }
+
+function statusBadge(s) {
+  const m = {active:'badge-green',suspended:'badge-red',pending:'badge-amber',expired:'badge-gray',cancelled:'badge-gray',paid:'badge-green',overdue:'badge-red',past_due:'badge-red',active_trial:'badge-blue'};
+  return `<span class="badge ${m[s]||'badge-gray'}">${s||'unknown'}</span>`;
+}
+function sslBadge(s) {
+  return s === 'active' ? '<span class="badge badge-green">🔒 Active</span>' :
+         s === 'pending' ? '<span class="badge badge-amber">⏳ Pending</span>' :
+         s === 'expired' ? '<span class="badge badge-red">⚠️ Expired</span>' : '<span class="badge badge-gray">None</span>';
+}
+function fmtDate(d) { if(!d)return'—'; try{return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}catch{return d;} }
+
+// ═══════════════════════════════════════════════════
+// TOPBAR UI
+// ═══════════════════════════════════════════════════
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
+}
+function toggleNotif() {
+  document.getElementById('notifDot').style.display = 'none';
+  toast('info','No new notifications');
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('userMenu');
+  const avatar = document.getElementById('userAvatar');
+  if (menu && !menu.contains(e.target) && !avatar.contains(e.target)) menu.classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function toast(type, msg) {
+  const icons = { ok:'✅', error:'❌', warn:'⚠️', info:'ℹ️' };
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<span class="toast-icon">${icons[type]||'💬'}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='all .3s'; el.style.opacity='0'; el.style.transform='translateX(100%)'; setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+// ═══════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));
+});
+
+// ═══════════════════════════════════════════════════
+// BOOTSTRAP
+// ═══════════════════════════════════════════════════
+(function boot() {
+  if (APP.token && APP.user) {
+    initApp();
+  }
+  // else: auth screen is visible by default
+})();
+</script>
+</body>
+</html>

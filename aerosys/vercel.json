@@ -1,12 +1,35 @@
 {
-  "framework": "nextjs",
-  "regions": ["iad1"],
+  "rewrites": [
+    { "source": "/api/auth/register",  "destination": "/api/auth/register.js" },
+    { "source": "/api/auth/login",     "destination": "/api/auth/login.js" },
+    { "source": "/api/admin/domains",  "destination": "/api/admin/domains.js" },
+    { "source": "/api/admin/clients",  "destination": "/api/admin/clients.js" },
+    { "source": "/api/admin/hosting",  "destination": "/api/admin/hosting.js" },
+    { "source": "/api/admin/dns",      "destination": "/api/admin/dns.js" },
+    { "source": "/api/plans",          "destination": "/api/plans.js" },
+    { "source": "/api/subscriptions",  "destination": "/api/subscriptions.js" },
+    { "source": "/api/client/dashboard", "destination": "/api/client/dashboard.js" },
+    { "source": "/api/webhooks/stripe","destination": "/api/webhooks/stripe.js" },
+    { "source": "/(.*)",               "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/webhooks/stripe.js": { "maxDuration": 30 }
+  }
 }
